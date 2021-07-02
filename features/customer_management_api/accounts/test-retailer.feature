@@ -13,6 +13,16 @@ Feature: Bink BPL - Ensure that as a channel user I can retrieve a test-retailer
     Then I receive a HTTP 200 status code in the accounts response
     And I get a success accounts response body
 
+  @undertest
+  Scenario: Get an account holder with vouchers for test-retailer by UUID
+
+    Given I previously successfully enrolled a test-retailer account holder
+    And I received a HTTP 202 status code response
+    And vouchers have been added for the account holder
+    When I send a get /accounts request for a test-retailer account holder by UUID
+    Then I receive a HTTP 200 status code in the accounts response
+    And I get a success accounts response body with vouchers
+
   Scenario: Get a non existent account holder for test-retailer by UUID
 
     Given The test-retailer's account holder I want to retrieve does not exists

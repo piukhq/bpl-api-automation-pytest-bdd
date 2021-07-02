@@ -1,7 +1,7 @@
 import json
 import logging
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from tests.customer_management_api.api_requests.base import get_headers
 from tests.customer_management_api.api_requests.enrolment import send_post_enrolment
@@ -86,3 +86,23 @@ def check_account_holder_is_active(polaris_db_session: "Session", request_contex
     assert account_holder.account_number is not None
 
     return account_holder
+
+
+def add_vouchers_for_account_holder(
+    polaris_db_session: "Session",
+    request_context: dict,
+    create_mock_voucher: Callable,
+) -> None:
+    request_body = json.loads(request_context["response"].request.body)
+    email = request_body["credentials"]["email"]
+    retailer_slug = request_context["retailer_slug"]
+
+    account_holder = get_active_account_holder(polaris_db_session, email, retailer_slug)
+
+    vouchers = []
+    vouchers.append(
+        create_mock_voucher(**{"account_holder": account_holder, "voucher_type_slug": "slug1", "voucher_code": "code1"})
+    )
+    vouchers.append(
+        create_mock_voucher(**{"account_holder": account_holder, "voucher_type_slug": "slug2", "voucher_code": "code2"})
+    )
