@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from deepdiff import DeepDiff
 from pytest_bdd import given, parsers, scenarios, then, when
@@ -27,6 +27,7 @@ from tests.customer_management_api.step_definitions.shared import (
     check_response_status_code,
     enrol_account_holder,
     non_existent_account_holder,
+    add_vouchers_for_account_holder,
 )
 
 if TYPE_CHECKING:
@@ -49,6 +50,13 @@ def setup_check_enrolment_response_status_code(status_code: int, request_context
 @given(parsers.parse("the enrolled account holder has been activated"))
 def check_acccounts_account_holder_is_active(polaris_db_session: "Session", request_context: dict) -> None:
     check_account_holder_is_active(polaris_db_session, request_context)
+
+
+@given(parsers.parse("vouchers have been added for the account holder"))
+def check_vouchers_added_for_account_holder(
+    polaris_db_session: "Session", request_context: dict, create_mock_voucher: Callable
+) -> None:
+    add_vouchers_for_account_holder(polaris_db_session, request_context, create_mock_voucher)
 
 
 @when(parsers.parse("I send a get /accounts request for a {retailer_slug} account holder by UUID"))
@@ -115,6 +123,20 @@ def check_successful_accounts_response(polaris_db_session: "Session", request_co
 @then("I get a success accounts status response body")
 def check_successful_accounts_status_response(polaris_db_session: "Session", request_context: dict) -> None:
     expected_response_body = account_holder_status_response_body(
+        polaris_db_session, request_context["account_holder"].id
+    )
+    resp = request_context["response"]
+    logging.info(
+        f"GET accounts expected response: {json.dumps(expected_response_body, indent=4)}\n"
+        f"GET accounts actual response: {json.dumps(resp.json(), indent=4)}"
+    )
+    diff = DeepDiff(resp.json(), expected_response_body, significant_digits=2)
+    assert not diff
+
+
+@then("I get a success accounts response body with vouchers")
+def check_successful_accounts_response_with_vouchers(polaris_db_session: "Session", request_context: dict) -> None:
+    expected_response_body = account_holder_details_response_body(
         polaris_db_session, request_context["account_holder"].id
     )
     resp = request_context["response"]
