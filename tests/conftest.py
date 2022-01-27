@@ -8,7 +8,7 @@ import pytest
 
 from sqlalchemy import delete
 
-from db.carina.models import Voucher, VoucherConfig
+from db.carina.models import Reward, RewardConfig
 from db.carina.session import CarinaSessionMaker
 from db.polaris.session import PolarisSessionMaker
 from db.vela.models import Campaign, CampaignStatuses, RetailerRewards, RewardRule
@@ -96,45 +96,45 @@ def create_mock_campaign(vela_db_session: "Session") -> Generator:
 
 @pytest.fixture(scope="function")
 def create_config_and_vouchers(carina_db_session: "Session") -> Generator:
-    voucher_config: Optional[VoucherConfig] = None
+    reward_config: Optional[RewardConfig] = None
 
     def fn(
-        retailer_slug: str, voucher_type_slug: str, status: Optional[str] = "ACTIVE", num_vouchers: int = 5
-    ) -> VoucherConfig:
-        nonlocal voucher_config
-        voucher_config = VoucherConfig(
+        retailer_slug: str, voucher_type_slug: str, status: Optional[str] = "ACTIVE", num_rewards: int = 5
+    ) -> RewardConfig:
+        nonlocal reward_config
+        reward_config = RewardConfig(
             retailer_slug=retailer_slug,
             voucher_type_slug=voucher_type_slug,
             validity_days=1,
             fetch_type="PRE_LOADED",
             status=status,
         )
-        carina_db_session.add(voucher_config)
+        carina_db_session.add(reward_config)
         carina_db_session.commit()
 
-        voucher_ids = [str(uuid.uuid4()) for i in range(num_vouchers)]
+        reward_ids = [str(uuid.uuid4()) for i in range(num_rewards)]
         carina_db_session.add_all(
             [
-                Voucher(
-                    id=voucher_id,
+                Reward(
+                    id=reward_id,
                     retailer_slug=retailer_slug,
-                    voucher_config_id=voucher_config.id,
-                    voucher_code=str(voucher_id),
+                    reward_config_id=reward_config.id,
+                    reward_code=str(reward_id),
                     allocated=False,
                     deleted=False,
                 )
-                for voucher_id in voucher_ids
+                for reward_id in reward_ids
             ]
         )
         carina_db_session.commit()
 
-        return voucher_config, voucher_ids
+        return reward_config, reward_ids
 
     yield fn
 
-    if voucher_config:
-        carina_db_session.execute(delete(Voucher).where(Voucher.voucher_config_id == voucher_config.id))
-        carina_db_session.delete(voucher_config)
+    if reward_config:
+        carina_db_session.execute(delete(Reward).where(Reward.reward_config_id == reward_config.id))
+        carina_db_session.delete(reward_config)
         carina_db_session.commit()
 
 

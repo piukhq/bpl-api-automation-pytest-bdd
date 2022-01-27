@@ -14,7 +14,7 @@ from sqlalchemy import select
 
 import settings
 
-from db.carina.models import Voucher, VoucherConfig
+from db.carina.models import Reward, RewardConfig
 from db.polaris.models import AccountHolderVoucher
 from tests.rewards_rule_management_api.api_requests.base import post_transaction_request
 from tests.rewards_rule_management_api.db_actions.campaigns import get_active_campaigns, get_retailer_rewards
@@ -72,20 +72,20 @@ def check_or_make_unallocated_vouchers(
     retailer_slug = request_context["retailer_slug"]
     voucher_config = (
         carina_db_session.execute(
-            select(VoucherConfig)
-            .where(VoucherConfig.retailer_slug == retailer_slug)
-            .where(VoucherConfig.voucher_type_slug == voucher_type_slug)
+            select(RewardConfig)
+            .where(RewardConfig.retailer_slug == retailer_slug)
+            .where(RewardConfig.voucher_type_slug == voucher_type_slug)
         )
         .scalars()
         .one()
     )
     existing_vouchers = (
         carina_db_session.execute(
-            select(Voucher)
-            .join(VoucherConfig)
-            .where(Voucher.retailer_slug == retailer_slug)
-            .where(Voucher.voucher_config == voucher_config)
-            .where(Voucher.allocated.is_(False))
+            select(Reward)
+            .join(RewardConfig)
+            .where(Reward.retailer_slug == retailer_slug)
+            .where(Reward.voucher_config == voucher_config)
+            .where(Reward.allocated.is_(False))
         )
         .scalars()
         .all()
@@ -116,12 +116,12 @@ def check_or_make_unallocated_vouchers(
 
 
 def make_spare_vouchers(
-    carina_db_session: "Session", how_many: int, retailer_slug: str, voucher_config: VoucherConfig
-) -> List[Voucher]:
+    carina_db_session: "Session", how_many: int, retailer_slug: str, voucher_config: RewardConfig
+) -> List[Reward]:
     vouchers = []
     for _ in range(how_many):
         vouchers.append(
-            Voucher(
+            Reward(
                 id=str(uuid.uuid4()),
                 voucher_code=str(uuid.uuid4()),
                 voucher_config_id=voucher_config.id,

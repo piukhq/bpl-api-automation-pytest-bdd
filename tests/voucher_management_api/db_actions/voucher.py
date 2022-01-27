@@ -6,7 +6,7 @@ from retry_tasks_lib.db.models import RetryTask, TaskTypeKey, TaskTypeKeyValue
 from sqlalchemy.future import select
 from sqlalchemy.sql.functions import count
 
-from db.carina.models import Voucher, VoucherConfig
+from db.carina.models import Reward, RewardConfig
 from db.polaris.models import AccountHolderVoucher
 
 if TYPE_CHECKING:
@@ -17,35 +17,35 @@ def get_count_unallocated_vouchers_by_voucher_config(
     carina_db_session: "Session", voucher_configs_ids: list[int]
 ) -> int:
     return carina_db_session.scalar(
-        select(count(Voucher.id)).where(
-            Voucher.voucher_config_id.in_(voucher_configs_ids), Voucher.allocated.is_(False)
+        select(count(Reward.id)).where(
+            Reward.voucher_config_id.in_(voucher_configs_ids), Reward.allocated.is_(False)
         )
     )
 
 
 def get_voucher_configs_ids_by_retailer(carina_db_session: "Session", retailer_slug: str) -> list[int]:
     return (
-        carina_db_session.execute(select(VoucherConfig.id).where(VoucherConfig.retailer_slug == retailer_slug))
+        carina_db_session.execute(select(RewardConfig.id).where(RewardConfig.retailer_slug == retailer_slug))
         .scalars()
         .all()
     )
 
 
-def get_voucher_config(carina_db_session: "Session", retailer_slug: str) -> VoucherConfig:
+def get_voucher_config(carina_db_session: "Session", retailer_slug: str) -> RewardConfig:
     return (
-        carina_db_session.execute(select(VoucherConfig).where(VoucherConfig.retailer_slug == retailer_slug))
+        carina_db_session.execute(select(RewardConfig).where(RewardConfig.retailer_slug == retailer_slug))
         .scalars()
         .first()
     )
 
 
-def get_voucher_config_with_available_vouchers(carina_db_session: "Session", retailer_slug: str) -> VoucherConfig:
+def get_voucher_config_with_available_vouchers(carina_db_session: "Session", retailer_slug: str) -> RewardConfig:
     return (
         carina_db_session.execute(
-            select(VoucherConfig).where(
-                VoucherConfig.retailer_slug == retailer_slug,
-                Voucher.voucher_config_id == VoucherConfig.id,
-                Voucher.allocated.is_(False),
+            select(RewardConfig).where(
+                RewardConfig.retailer_slug == retailer_slug,
+                Reward.voucher_config_id == RewardConfig.id,
+                Reward.allocated.is_(False),
             )
         )
         .scalars()

@@ -9,7 +9,7 @@ from pytest_bdd.parsers import parse
 from sqlalchemy import Date
 from sqlalchemy.future import select
 
-from db.carina.models import Voucher, VoucherConfig, VoucherFileLog, VoucherUpdate
+from db.carina.models import Reward, RewardConfig, RewardFileLog, RewardUpdate
 from db.polaris.models import AccountHolderVoucher
 from enums import FileAgentType
 
@@ -19,17 +19,17 @@ if TYPE_CHECKING:
 
 def _get_voucher_update_rows(
     carina_db_session: "Session", voucher_codes: List[str], req_date: str
-) -> List[VoucherUpdate]:
+) -> List[RewardUpdate]:
     """
     Get voucher_update rows matching voucher_code's and a date e.g. '2021-09-01'
     """
     voucher_update_rows = (
         carina_db_session.execute(
-            select(VoucherUpdate)
-            .join(Voucher)
+            select(RewardUpdate)
+            .join(Reward)
             .where(
-                Voucher.voucher_code.in_(voucher_codes),
-                VoucherUpdate.updated_at.cast(Date) == req_date,
+                Reward.voucher_code.in_(voucher_codes),
+                RewardUpdate.updated_at.cast(Date) == req_date,
             )
         )
         .scalars()
@@ -39,13 +39,13 @@ def _get_voucher_update_rows(
     return voucher_update_rows
 
 
-def _get_voucher_row(carina_db_session: "Session", voucher_code: str, req_date: str, deleted: bool) -> Voucher:
+def _get_voucher_row(carina_db_session: "Session", voucher_code: str, req_date: str, deleted: bool) -> Reward:
     return (
         carina_db_session.execute(
-            select(Voucher).where(
-                Voucher.voucher_code == voucher_code,
-                Voucher.updated_at.cast(Date) == req_date,
-                Voucher.deleted.is_(deleted),
+            select(Reward).where(
+                Reward.voucher_code == voucher_code,
+                Reward.updated_at.cast(Date) == req_date,
+                Reward.deleted.is_(deleted),
             )
         )
         .scalars()
@@ -55,11 +55,11 @@ def _get_voucher_row(carina_db_session: "Session", voucher_code: str, req_date: 
 
 def _get_voucher_file_log(
     carina_db_session: "Session", file_name: str, file_agent_type: FileAgentType
-) -> Optional[VoucherFileLog]:
+) -> Optional[RewardFileLog]:
     return (
         carina_db_session.execute(
-            select(VoucherFileLog).where(
-                VoucherFileLog.file_name == file_name, VoucherFileLog.file_agent_type == file_agent_type.name
+            select(RewardFileLog).where(
+                RewardFileLog.file_name == file_name, RewardFileLog.file_agent_type == file_agent_type.name
             )
         )
         .scalars()
@@ -70,7 +70,7 @@ def _get_voucher_file_log(
 @given(parse("The voucher code provider provides a bulk update file for {retailer_slug}"))
 def voucher_updates_upload(
     retailer_slug: str,
-    get_voucher_config: Callable[[str, str], VoucherConfig],
+    get_voucher_config: Callable[[str, str], RewardConfig],
     create_mock_vouchers: Callable,
     request_context: dict,
     upload_voucher_updates_to_blob_storage: Callable,
@@ -81,7 +81,7 @@ def voucher_updates_upload(
     for today's date.
     """
     # GIVEN
-    mock_vouchers: List[Voucher] = create_mock_vouchers(
+    mock_vouchers: List[Reward] = create_mock_vouchers(
         voucher_config=get_voucher_config(retailer_slug, "10percentoff"),
         n_vouchers=3,
         voucher_overrides=[
@@ -100,7 +100,7 @@ def voucher_updates_upload(
 def voucher_updates_upload_blob_name(
     blob_name: str,
     retailer_slug: str,
-    get_voucher_config: Callable[[str, str], VoucherConfig],
+    get_voucher_config: Callable[[str, str], RewardConfig],
     create_mock_vouchers: Callable,
     request_context: dict,
     upload_voucher_updates_to_blob_storage: Callable,
@@ -111,7 +111,7 @@ def voucher_updates_upload_blob_name(
     for today's date.
     """
     # GIVEN
-    mock_vouchers: List[Voucher] = create_mock_vouchers(
+    mock_vouchers: List[Reward] = create_mock_vouchers(
         voucher_config=get_voucher_config(retailer_slug, "10percentoff"),
         n_vouchers=3,
         voucher_overrides=[

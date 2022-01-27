@@ -32,11 +32,13 @@ def post_voucher(past_or_future: str, retailer_slug: str, token_validity: str, r
     request_context["voucher_id"] = str(uuid.uuid4())
 
     payload = {
-        "voucher_id": request_context["voucher_id"],
-        "voucher_code": "".join(random.choice(string.ascii_lowercase) for i in range(10)),
-        "voucher_type_slug": "voucher-type-slug",
+        "code": "".join(random.choice(string.ascii_lowercase) for i in range(10)),
         "issued_date": datetime.utcnow().timestamp(),
         "expiry_date": (datetime.utcnow() + timedelta(days=-7 if past_or_future == "past" else 7)).timestamp(),
+        "status": "issued",
+        "redeemed_date": "string",
+        "reward_slug": "",
+        "reward_uuid": account_holder_uuid,
     }
     resp = send_post_accounts_voucher(
         retailer_slug,
@@ -45,8 +47,8 @@ def post_voucher(past_or_future: str, retailer_slug: str, token_validity: str, r
         "valid" if token_validity == "valid" else "invalid",  # jump through mypy hoops
     )
     logging.info(
-        f"POST Voucher Endpoint request body: {json.dumps(payload, indent=4)}\n"
-        f"Post Voucher URL:{POLARIS_BASE_URL}/{retailer_slug}/accounts/{account_holder_uuid}/vouchers"
+        f"POST Reward Endpoint request body: {json.dumps(payload, indent=4)}\n"
+        f"Post Reward URL:{POLARIS_BASE_URL}/{retailer_slug}/accounts/{account_holder_uuid}/rewards"
     )
     request_context["response"] = resp
 

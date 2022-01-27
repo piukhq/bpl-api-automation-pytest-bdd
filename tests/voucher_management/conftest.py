@@ -9,7 +9,7 @@ from sqlalchemy import delete
 from sqlalchemy.future import select
 
 from azure_actions.blob_storage import put_new_available_vouchers_file, put_new_voucher_updates_file
-from db.carina.models import Voucher, VoucherConfig, VoucherFileLog
+from db.carina.models import Reward, RewardConfig, RewardFileLog
 from db.polaris.models import AccountHolder, AccountHolderVoucher, RetailerConfig
 from enums import FileAgentType
 from settings import BLOB_STORAGE_DSN, logger
@@ -23,9 +23,9 @@ def cleanup_imported_vouchers(carina_db_session: "Session", request_context: dic
 
     yield
 
-    if voucher_codes := request_context.get("import_file_new_voucher_codes", []):
-        logger.info("Deleting newly imported Vouchers...")
-        carina_db_session.execute(delete(Voucher).where(Voucher.id.in_(voucher_codes)))
+    if reward_codes := request_context.get("import_file_new_reward_codes", []):
+        logger.info("Deleting newly imported Rewards...")
+        carina_db_session.execute(delete(Reward).where(Reward.id.in_(reward_codes)))
         carina_db_session.commit()
 
 
@@ -52,14 +52,14 @@ def upload_available_vouchers_to_blob_storage() -> Callable:
 
 @pytest.fixture(scope="function")
 def upload_voucher_updates_to_blob_storage() -> Callable:
-    def func(retailer_slug: str, vouchers: List[Voucher], blob_name: str = None) -> Optional[str]:
+    def func(retailer_slug: str, vouchers: List[Reward], blob_name: str = None) -> Optional[str]:
         """Upload some voucher updates to blob storage to test end-to-end import"""
         blob = None
         if blob_name is None:
             blob_name = f"test_import_{uuid.uuid4()}.csv"
 
         if BLOB_STORAGE_DSN:
-            logger.debug(f"Uploading voucher updates to blob storage for {retailer_slug}...")
+            logger.debug(f"Uploading reward updates to blob storage for {retailer_slug}...")
             blob = put_new_voucher_updates_file(retailer_slug=retailer_slug, vouchers=vouchers, blob_name=blob_name)
             logger.debug(f"Successfully uploaded voucher updates to blob storage: {blob.url}")
         else:
@@ -72,10 +72,10 @@ def upload_voucher_updates_to_blob_storage() -> Callable:
 
 @pytest.fixture(scope="function")
 def get_voucher_config(carina_db_session: "Session") -> Callable:
-    def func(retailer_slug: str, voucher_type_slug: Optional[str] = None) -> VoucherConfig:
-        query = select(VoucherConfig).where(VoucherConfig.retailer_slug == retailer_slug)
+    def func(retailer_slug: str, voucher_type_slug: Optional[str] = None) -> RewardConfig:
+        query = select(RewardConfig).where(RewardConfig.retailer_slug == retailer_slug)
         if voucher_type_slug is not None:
-            query = query.where(VoucherConfig.voucher_type_slug == voucher_type_slug)
+            query = query.where(RewardConfig.voucher_type_slug == voucher_type_slug)
         return carina_db_session.execute(query).scalars().first()
 
     return func
@@ -121,11 +121,11 @@ def mock_account_holder(polaris_db_session: "Session") -> AccountHolder:
 def create_mock_vouchers(
     carina_db_session: "Session", polaris_db_session: "Session", mock_account_holder: AccountHolder
 ) -> Generator:
-    mock_vouchers: List[Voucher] = []
+    mock_vouchers: List[Reward] = []
     mock_account_holder_vouchers: List[AccountHolderVoucher] = []
     now = datetime.utcnow()
 
-    def func(voucher_config: VoucherConfig, n_vouchers: int, voucher_overrides: List[Dict]) -> Voucher:
+    def func(voucher_config: RewardConfig, n_vouchers: int, voucher_overrides: List[Dict]) -> Reward:
         """
         Create a voucher in carina's test DB
         :param voucher_config: the VoucherConfig to link the vouchers to
@@ -147,7 +147,7 @@ def create_mock_vouchers(
             }
 
             voucher_params.update(voucher_overrides[idx])
-            mock_voucher = Voucher(**voucher_params)
+            mock_voucher = Reward(**voucher_params)
             carina_db_session.add(mock_voucher)
             mock_vouchers.append(mock_voucher)
 
@@ -187,9 +187,9 @@ def create_mock_vouchers(
 
 @pytest.fixture(scope="function")
 def create_mock_voucher_file_log(carina_db_session: "Session") -> Generator:
-    mock_voucher_file_log: VoucherFileLog = None
+    mock_voucher_file_log: RewardFileLog = None
 
-    def func(file_name: str, file_agent_type: FileAgentType) -> VoucherFileLog:
+    def func(file_name: str, file_agent_type: FileAgentType) -> RewardFileLog:
         """
         Create a voucher file log in carina's test DB
         :param file_name: a blob file name (full path)
@@ -200,7 +200,7 @@ def create_mock_voucher_file_log(carina_db_session: "Session") -> Generator:
             "file_name": file_name,
             "file_agent_type": file_agent_type,
         }
-        mock_voucher_file_log = VoucherFileLog(**params)
+        mock_voucher_file_log = RewardFileLog(**params)
         carina_db_session.add(mock_voucher_file_log)
         carina_db_session.commit()
 
