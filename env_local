@@ -1,0 +1,16 @@
+VAULT_URL=https://bink-uksouth-staging-com.vault.azure.net/
+ENV_BASE_URL=https://api.staging.gb.bink.com
+MOCK_SERVICE_BASE_URL=http://luna-api
+POLARIS_DATABASE_URI=postgresql://sheep:5abluH4RJYahJugnxxHF3ium@127.0.0.1/polaris
+VELA_DATABASE_URI=postgresql://sheep:5abluH4RJYahJugnxxHF3ium@127.0.0.1/vela
+CARINA_DATABASE_URI=postgresql://sheep:5abluH4RJYahJugnxxHF3ium@127.0.0.1/carina
+POLARIS_ENV_BASE_URL=https://api.staging.gb.bink.com/bpl/loyalty
+VELA_ENV_BASE_URL=https://api.staging.gb.bink.com/bpl/rewards
+CARINA_ENV_BASE_URL=https://api.staging.gb.bink.com/bpl/vouchers
+BLOB_STORAGE_DSN=DefaultEndpointsProtocol=https;AccountName=binkuksouthstaging;AccountKey=pYfZWGtbV2JRxiUh9ilSOEytaGmLuyEJW3mVFbm/9GF/62I+LmVa0uWR0DLaP8huhdiKAJp/S7QBdbXwKDMJpA==;EndpointSuffix=core.windows.net
+#BLOB_STORAGE_DSN=DefaultEndpointsProtocol=https;AccountName=binkuksouthdev;AccountKey=L/xU6NZswZAJbFhKjIGr0feakhY8QsCw4oUuj6bXNfxhWQv2caNkDo8czIu05DBcaZbSL7vfpYGP7OZsbpXuhw==;EndpointSuffix=core.windows.net
+TEAMS_WEBHOOK="nice"
+FRIENDLY_NAME="Local - Customer Management API - BPL"
+SCHEDULE="*/15 * * * *"
+ALERT_ON_SUCCESS=False
+ALERT_ON_FAILURE=False

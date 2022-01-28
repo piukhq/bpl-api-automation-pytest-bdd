@@ -37,7 +37,7 @@ def post_voucher(past_or_future: str, retailer_slug: str, token_validity: str, r
         "expiry_date": (datetime.utcnow() + timedelta(days=-7 if past_or_future == "past" else 7)).timestamp(),
         "status": "issued",
         "redeemed_date": "string",
-        "reward_slug": "",
+        "reward_slug": "voucher-type-slug",
         "reward_uuid": account_holder_uuid,
     }
     resp = send_post_accounts_voucher(

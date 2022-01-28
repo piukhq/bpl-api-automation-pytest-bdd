@@ -27,7 +27,7 @@ def send_post_accounts_voucher(
     if token_validity == "invalid":
         headers = headers | {"Authorization": "WRONG TOKEN"}
     return retry_session().post(
-        f"{POLARIS_BASE_URL}/{retailer_slug}/accounts/{account_holder_uuid}/vouchers",
+        f"{POLARIS_BASE_URL}/{retailer_slug}/accounts/{account_holder_uuid}/rewards",
         json=request_body,
         headers=headers,
     )
