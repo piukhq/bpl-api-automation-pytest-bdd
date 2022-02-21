@@ -23,6 +23,6 @@ class CampaignStatuses(str, Enum):
     ENDED = "ENDED"
 
 
-class LoyaltyTypes(str, Enum):
-    ACCUMULATOR = "ACCUMULATOR"
-    STAMPS = "STAMPS"
+class LoyaltyTypes(Enum):
+    ACCUMULATOR = "accumulator"
+    STAMPS = "stamps"

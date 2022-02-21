@@ -25,31 +25,26 @@ if TYPE_CHECKING:
 
 
 # fmt: off
-@given(parse("{retailer_slug} has an active campaign with the slug {campaign_slug} where the earn increment {loyalty_type} the transaction value"))  # noqa: E501
+@given(parse("{retailer_slug} has an {loyalty_type} active campaign with the slug {campaign_slug} where the earn increment the transaction value"))  # noqa: E501
 # fmt: on
 def check_retailer_campaign(
-    vela_db_session: "Session",
-    request_context: dict,
-    retailer_slug: str,
-    campaign_slug: str,
-    loyalty_type: LoyaltyTypes,
+        vela_db_session: "Session",
+        request_context: dict,
+        retailer_slug: str,
+        loyalty_type: LoyaltyTypes,
+        campaign_slug: str,
 ) -> None:
-    if loyalty_type == "is":
-        loyalty_type = LoyaltyTypes.ACCUMULATOR
-    elif loyalty_type == "is not":
-        loyalty_type = LoyaltyTypes.STAMPS
-    else:
-        raise ValueError('loyalty_type must be either "is" or "is not"')
+    loyalty_type = LoyaltyTypes(loyalty_type)
     retailer = get_retailer_rewards(vela_db_session, retailer_slug)
     assert retailer
     campaign = get_active_campaigns(
         vela_db_session,
         retailer_slug=retailer.slug,
         slug=campaign_slug,
-        loyalty_type=loyalty_type,
-    )[0]
-    assert campaign is not None
-    request_context["campaign"] = campaign
+        loyalty_type=loyalty_type.name,
+    )
+    assert campaign, "There is no active campaign for this retailer"
+    request_context["campaign"] = campaign[0]
 
 
 # fmt: off

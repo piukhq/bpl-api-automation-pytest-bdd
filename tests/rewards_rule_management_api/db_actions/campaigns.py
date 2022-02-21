@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
-from db.vela.models import Campaign, CampaignStatuses, RetailerRewards
+from db.vela.models import Campaign, CampaignStatuses, RetailerRewards, LoyaltyTypes
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -14,13 +14,13 @@ def get_retailer_rewards(vela_db_session: "Session", retailer_slug: str) -> Opti
 
 
 def get_active_campaigns(
-    vela_db_session: "Session", retailer_slug: str, **filter_kwargs: Union[str, bool]
+    vela_db_session: "Session", retailer_slug: str, **filter_kwargs: Union[str, LoyaltyTypes]
 ) -> List[Campaign]:
     retailer = get_retailer_rewards(vela_db_session, retailer_slug)
 
     return (
         vela_db_session.query(Campaign)
-        .filter_by(retailer_rewards=retailer, status=CampaignStatuses.ACTIVE, **filter_kwargs)
+        .filter_by(retailer_id=retailer.id, status=CampaignStatuses.ACTIVE, **filter_kwargs)
         .all()
     )
 
