@@ -28,11 +28,11 @@ if TYPE_CHECKING:
 @given(parse("{retailer_slug} has an active {loyalty_type} campaign with the slug {campaign_slug} where the earn increment the transaction value"))  # noqa: E501
 # fmt: on
 def check_retailer_campaign(
-        vela_db_session: "Session",
-        request_context: dict,
-        retailer_slug: str,
-        loyalty_type: LoyaltyTypes,
-        campaign_slug: str,
+    vela_db_session: "Session",
+    request_context: dict,
+    retailer_slug: str,
+    loyalty_type: LoyaltyTypes,
+    campaign_slug: str,
 ) -> None:
     loyalty_type = LoyaltyTypes(loyalty_type)
     retailer = get_retailer_rewards(vela_db_session, retailer_slug)

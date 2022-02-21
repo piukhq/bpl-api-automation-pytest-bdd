@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
-from db.vela.models import Campaign, CampaignStatuses, RetailerRewards, LoyaltyTypes
+from db.vela.models import Campaign, CampaignStatuses, LoyaltyTypes, RetailerRewards
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
