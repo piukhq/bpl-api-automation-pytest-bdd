@@ -16,6 +16,7 @@ import settings
 
 from db.carina.models import Reward, RewardConfig
 from db.polaris.models import AccountHolderReward
+from db.vela.models import LoyaltyTypes
 from tests.rewards_rule_management_api.api_requests.base import post_transaction_request
 from tests.rewards_rule_management_api.db_actions.campaigns import get_active_campaigns, get_retailer_rewards
 
@@ -31,12 +32,12 @@ def check_retailer_campaign(
     request_context: dict,
     retailer_slug: str,
     campaign_slug: str,
-    loyalty_type: str,
+    loyalty_type: LoyaltyTypes,
 ) -> None:
     if loyalty_type == "is":
-        loyalty_type = "ACCUMULATOR"
+        loyalty_type = LoyaltyTypes.ACCUMULATOR
     elif loyalty_type == "is not":
-        loyalty_type = "STAMPS"
+        loyalty_type = LoyaltyTypes.STAMPS
     else:
         raise ValueError('loyalty_type must be either "is" or "is not"')
     retailer = get_retailer_rewards(vela_db_session, retailer_slug)

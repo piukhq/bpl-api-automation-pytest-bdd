@@ -21,3 +21,8 @@ class CampaignStatuses(str, Enum):
     DRAFT = "DRAFT"
     CANCELLED = "CANCELLED"
     ENDED = "ENDED"
+
+
+class LoyaltyTypes(str, Enum):
+    ACCUMULATOR = "ACCUMULATOR"
+    STAMPS = "STAMPS"
