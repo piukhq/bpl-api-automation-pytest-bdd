@@ -20,7 +20,7 @@ def get_active_campaigns(
 
     return (
         vela_db_session.query(Campaign)
-        .filter_by(retailer_id=retailer.id, status=CampaignStatuses.ACTIVE, **filter_kwargs)
+        .filter_by(retailer_rewards=retailer, status=CampaignStatuses.ACTIVE, **filter_kwargs)
         .all()
     )
 
