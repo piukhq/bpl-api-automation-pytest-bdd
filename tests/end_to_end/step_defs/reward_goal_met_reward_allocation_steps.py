@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 # fmt: off
-@given(parse("{retailer_slug} has an {loyalty_type} active campaign with the slug {campaign_slug} where the earn increment the transaction value"))  # noqa: E501
+@given(parse("{retailer_slug} has an active {loyalty_type} campaign with the slug {campaign_slug} where the earn increment the transaction value"))  # noqa: E501
 # fmt: on
 def check_retailer_campaign(
         vela_db_session: "Session",

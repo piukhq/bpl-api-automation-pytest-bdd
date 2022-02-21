@@ -4,7 +4,7 @@ Feature: Allocation of reward once reward goal met
 
   Scenario: Successfully POST an awardable transaction that increases the balance above the reward goal for the active campaign
 
-    Given test-retailer has an stamps active campaign with the slug test-campaign-1 where the earn increment the transaction value
+    Given test-retailer has an active stamps campaign with the slug test-campaign-1 where the earn increment the transaction value
     And A active account holder exists for test-retailer
     And the campaign has an earn rule threshold and a reward goal with the same value for a reward slug of 10percentoff
     And there are unallocated rewards for the campaign for a reward slug of 10percentoff
