@@ -11,7 +11,7 @@ from sqlalchemy import delete
 from db.carina.models import Reward, RewardConfig
 from db.carina.session import CarinaSessionMaker
 from db.polaris.session import PolarisSessionMaker
-from db.vela.models import Campaign, CampaignStatuses, RetailerRewards, RewardRule, LoyaltyTypes
+from db.vela.models import Campaign, CampaignStatuses, LoyaltyTypes, RetailerRewards, RewardRule
 from db.vela.session import VelaSessionMaker
 
 if TYPE_CHECKING:
