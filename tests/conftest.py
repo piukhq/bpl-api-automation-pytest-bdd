@@ -11,7 +11,7 @@ from sqlalchemy import delete
 from db.carina.models import Reward, RewardConfig
 from db.carina.session import CarinaSessionMaker
 from db.polaris.session import PolarisSessionMaker
-from db.vela.models import Campaign, CampaignStatuses, RetailerRewards, RewardRule
+from db.vela.models import Campaign, CampaignStatuses, LoyaltyTypes, RetailerRewards, RewardRule
 from db.vela.session import VelaSessionMaker
 
 if TYPE_CHECKING:
@@ -72,7 +72,7 @@ def create_mock_campaign(vela_db_session: "Session") -> Generator:
         "name": "testcampaign",
         "slug": "test-campaign",
         "start_date": datetime.utcnow() - timedelta(minutes=5),
-        "earn_inc_is_tx_value": True,
+        "loyalty_type": LoyaltyTypes.ACCUMULATOR,
     }
 
     def _create_mock_campaign(retailer: RetailerRewards, **campaign_params: dict) -> Campaign:

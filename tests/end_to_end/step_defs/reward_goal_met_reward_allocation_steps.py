@@ -16,6 +16,7 @@ import settings
 
 from db.carina.models import Reward, RewardConfig
 from db.polaris.models import AccountHolderReward
+from db.vela.models import LoyaltyTypes
 from tests.rewards_rule_management_api.api_requests.base import post_transaction_request
 from tests.rewards_rule_management_api.db_actions.campaigns import get_active_campaigns, get_retailer_rewards
 
@@ -24,31 +25,26 @@ if TYPE_CHECKING:
 
 
 # fmt: off
-@given(parse("{retailer_slug} has an active campaign with the slug {campaign_slug} where the earn increment {earn_inc_is_tx_value} the transaction value"))  # noqa: E501
+@given(parse("{retailer_slug} has an active {loyalty_type} campaign with the slug {campaign_slug} where the earn increment the transaction value"))  # noqa: E501
 # fmt: on
 def check_retailer_campaign(
     vela_db_session: "Session",
     request_context: dict,
     retailer_slug: str,
+    loyalty_type: LoyaltyTypes,
     campaign_slug: str,
-    earn_inc_is_tx_value: bool,
 ) -> None:
-    if earn_inc_is_tx_value == "is":
-        earn_inc_is_tx_value = True
-    elif earn_inc_is_tx_value == "is not":
-        earn_inc_is_tx_value = False
-    else:
-        raise ValueError('earn_inc_is_tx_value must be either "is" or "is not"')
+    loyalty_type = LoyaltyTypes(loyalty_type)
     retailer = get_retailer_rewards(vela_db_session, retailer_slug)
     assert retailer
     campaign = get_active_campaigns(
         vela_db_session,
         retailer_slug=retailer.slug,
         slug=campaign_slug,
-        earn_inc_is_tx_value=earn_inc_is_tx_value,
-    )[0]
-    assert campaign is not None
-    request_context["campaign"] = campaign
+        loyalty_type=loyalty_type.name,
+    )
+    assert campaign, "There is no active campaign for this retailer"
+    request_context["campaign"] = campaign[0]
 
 
 # fmt: off
