@@ -72,7 +72,7 @@ def create_mock_campaign(vela_db_session: "Session") -> Generator:
         "name": "testcampaign",
         "slug": "test-campaign",
         "start_date": datetime.utcnow() - timedelta(minutes=5),
-        "loyalty_type": LoyaltyTypes.ACCUMULATOR,
+        "loyalty_type": (LoyaltyTypes.STAMPS).name,
     }
 
     def _create_mock_campaign(retailer: RetailerRewards, **campaign_params: dict) -> Campaign:
