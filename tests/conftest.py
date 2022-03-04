@@ -101,15 +101,13 @@ def create_mock_campaign(vela_db_session: "Session") -> Generator:
 def create_config_and_rewards(carina_db_session: "Session") -> Generator:
     reward_config: Optional[RewardConfig] = None
 
-    def fn(
-        retailer_slug: str, reward_slug: str, status: Optional[str] = "ACTIVE", num_rewards: int = 5
-    ) -> RewardConfig:
+    def fn(retailer_id: int, reward_slug: str, status: Optional[str] = "ACTIVE", num_rewards: int = 5) -> RewardConfig:
         nonlocal reward_config
         reward_config = RewardConfig(
-            retailer_slug=retailer_slug,
+            retailer_id=retailer_id,
             reward_slug=reward_slug,
-            validity_days=1,
-            fetch_type="PRE_LOADED",
+            required_fields_values="validity_days: 30",
+            fetch_type_id="PRE_LOADED",
             status=status,
         )
         carina_db_session.add(reward_config)
@@ -120,7 +118,7 @@ def create_config_and_rewards(carina_db_session: "Session") -> Generator:
             [
                 Reward(
                     id=reward_uuid,
-                    retailer_slug=retailer_slug,
+                    retailer_id=retailer_id,
                     reward_config_id=reward_config.id,
                     code=str(reward_uuid),
                     allocated=False,

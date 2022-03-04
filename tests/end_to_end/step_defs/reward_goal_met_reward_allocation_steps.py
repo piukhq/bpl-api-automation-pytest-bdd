@@ -10,11 +10,11 @@ import requests
 
 from pytest_bdd import given, then, when
 from pytest_bdd.parsers import parse
-from sqlalchemy import select
+from sqlalchemy.future import select
 
 import settings
 
-from db.carina.models import Reward, RewardConfig
+from db.carina.models import Reward, RewardConfig, Retailer
 from db.polaris.models import AccountHolderReward
 from db.vela.models import LoyaltyTypes
 from tests.rewards_rule_management_api.api_requests.base import post_transaction_request
@@ -65,34 +65,31 @@ def check_earn_reward_goal(vela_db_session: "Session", reward_slug: str, request
 def check_or_make_unallocated_rewards(
     carina_db_session: "Session", polaris_db_session: "Session", reward_slug: str, request_context: dict
 ) -> None:
-    retailer_slug = request_context["retailer_slug"]
-    reward_config = (
-        carina_db_session.execute(
-            select(RewardConfig)
-            .where(RewardConfig.retailer_slug == retailer_slug)
-            .where(RewardConfig.reward_slug == reward_slug)
-        )
-        .scalars()
-        .one()
-    )
+    request_context["carina_retailer_id"] = carina_db_session.execute(
+        select(Retailer.id).where(Retailer.slug == request_context["retailer_slug"])
+    ).scalar_one()
+    retailer_id = request_context["carina_retailer_id"]
+    reward_config = carina_db_session.execute(
+        select(RewardConfig).where(RewardConfig.retailer_id == retailer_id, RewardConfig.reward_slug == reward_slug)
+    ).scalar_one()
     existing_rewards = (
         carina_db_session.execute(
-            select(Reward)
-            .join(RewardConfig)
-            .where(Reward.retailer_slug == retailer_slug)
-            .where(Reward.reward_config == reward_config)
-            .where(Reward.allocated.is_(False))
+            select(Reward).where(
+                Reward.retailer_id == retailer_id,
+                Reward.reward_config == reward_config,
+                Reward.allocated.is_(False),
+            )
         )
         .scalars()
         .all()
     )
     unallocated_reward_codes = [reward.code for reward in existing_rewards]
     if len(existing_rewards) < 5:  # Let's keep enough (5?) spare rewards knocking about to mitigate against concurrency
-        new_rewards = make_spare_rewards(carina_db_session, 5 - len(existing_rewards), retailer_slug, reward_config)
+        new_rewards = make_spare_rewards(carina_db_session, 5 - len(existing_rewards), retailer_id, reward_config)
         unallocated_reward_codes += [reward.code for reward in new_rewards]
 
     request_context["unallocated_reward_codes"] = unallocated_reward_codes
-    request_context["reward_config_validity_days"] = reward_config.validity_days
+    request_context["reward_config_validity_days"] = reward_config.required_fields_values
 
     # Double check these reward codes have not been added to the AccountHolderReward table
     assert (
@@ -100,7 +97,7 @@ def check_or_make_unallocated_rewards(
             polaris_db_session.execute(
                 select(AccountHolderReward).where(
                     AccountHolderReward.code.in_(unallocated_reward_codes),
-                    AccountHolderReward.retailer_slug == retailer_slug,
+                    AccountHolderReward.retailer_slug == request_context["retailer_slug"],
                 )
             )
             .scalars()
@@ -169,7 +166,9 @@ def check_reward_allocated(polaris_db_session: "Session", request_context: dict)
 def check_reward_expiry(request_context: dict) -> None:
     reward = request_context["allocated_reward"]
     assert reward.issued_date.date() == datetime.today().date()
-    assert reward.expiry_date - reward.issued_date == timedelta(days=request_context["reward_config_validity_days"])
+    refund_window = request_context["reward_config_validity_days"]
+    logging.info(refund_window[-2:])
+    assert reward.expiry_date - reward.issued_date == timedelta(days=int(refund_window[-2:]))
 
 
 @then("The account holder balance is updated")
