@@ -71,8 +71,8 @@ def upload_reward_updates_to_blob_storage() -> Callable:
 
 @pytest.fixture(scope="function")
 def get_reward_config(carina_db_session: "Session") -> Callable:
-    def func(retailer_slug: str, reward_slug: Optional[str] = None) -> RewardConfig:
-        query = select(RewardConfig).where(RewardConfig.retailer_slug == retailer_slug)
+    def func(retailer_id: int, reward_slug: Optional[str] = None) -> RewardConfig:
+        query = select(RewardConfig).where(RewardConfig.retailer_id == retailer_id)
         if reward_slug is not None:
             query = query.where(RewardConfig.reward_slug == reward_slug)
         return carina_db_session.execute(query).scalars().first()
@@ -139,7 +139,7 @@ def create_mock_rewards(
             reward_params = {
                 "id": str(uuid.uuid4()),
                 "code": str(uuid.uuid4()),
-                "retailer_slug": reward_config.retailer_slug,
+                "retailer_id": reward_config.retailer_id,
                 "reward_config": reward_config,
                 "allocated": False,
                 "deleted": False,
@@ -159,7 +159,7 @@ def create_mock_rewards(
                     expiry_date=now + timedelta(days=30),
                     status="ISSUED",
                     reward_slug=reward_config.reward_slug,
-                    retailer_slug=reward_config.retailer_slug,
+                    retailer_slug="test-retailer",
                     idempotency_token=str(uuid.uuid4()),
                 )
                 polaris_db_session.add(mock_account_holder_reward)

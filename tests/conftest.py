@@ -107,7 +107,7 @@ def create_config_and_rewards(carina_db_session: "Session") -> Generator:
             retailer_id=retailer_id,
             reward_slug=reward_slug,
             required_fields_values="validity_days: 30",
-            fetch_type_id="PRE_LOADED",
+            fetch_type_id=1,
             status=status,
         )
         carina_db_session.add(reward_config)
