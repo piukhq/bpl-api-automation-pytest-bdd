@@ -14,7 +14,7 @@ from sqlalchemy.future import select
 
 import settings
 
-from db.carina.models import Reward, RewardConfig, Retailer
+from db.carina.models import Retailer, Reward, RewardConfig
 from db.polaris.models import AccountHolderReward
 from db.vela.models import LoyaltyTypes
 from tests.rewards_rule_management_api.api_requests.base import post_transaction_request

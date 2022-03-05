@@ -8,7 +8,7 @@ from pytest_bdd import given, then, when
 from pytest_bdd.parsers import parse
 from sqlalchemy.future import select
 
-from db.carina.models import RewardConfig, Retailer
+from db.carina.models import Retailer, RewardConfig
 from settings import CARINA_API_AUTH_TOKEN, CARINA_BASE_URL
 from tests.retry_requests import retry_session
 
@@ -53,11 +53,9 @@ def create_reward_config_with_available_rewards(
     retailer_slug: str,
     status: Union[Literal["ACTIVE"], Literal["CANCELLED"], Literal["ENDED"]],
     request_context: dict,
-    carina_db_session: "Session"
+    carina_db_session: "Session",
 ) -> None:
-    retailer_id = carina_db_session.execute(
-        select(Retailer.id).where(Retailer.slug == retailer_slug)
-    ).scalar()
+    retailer_id = carina_db_session.execute(select(Retailer.id).where(Retailer.slug == retailer_slug)).scalar()
     request_context["reward_slug"] = reward_slug = str(uuid.uuid4()).replace("-", "")
 
     reward_config, reward_uuids = create_config_and_rewards(retailer_id, reward_slug, status)

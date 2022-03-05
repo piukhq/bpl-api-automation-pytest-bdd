@@ -8,7 +8,7 @@ from pytest_bdd import given, then
 from pytest_bdd.parsers import parse
 from sqlalchemy.future import select
 
-from db.carina.models import Reward, RewardConfig, Retailer
+from db.carina.models import Retailer, Reward, RewardConfig
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -21,7 +21,7 @@ def make_pre_existing_rewards(
     get_reward_config: Callable[[int, str], RewardConfig],
     create_mock_rewards: Callable,
     request_context: dict,
-    carina_db_session:"Session"
+    carina_db_session: "Session",
 ) -> None:
 
     request_context["carina_retailer_id"] = carina_db_session.execute(
