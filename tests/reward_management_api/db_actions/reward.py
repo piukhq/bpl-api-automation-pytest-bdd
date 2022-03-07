@@ -19,27 +19,25 @@ def get_count_unallocated_rewards_by_reward_config(carina_db_session: "Session",
     )
 
 
-def get_reward_configs_ids_by_retailer(carina_db_session: "Session", retailer_slug: str) -> list[int]:
+def get_reward_configs_ids_by_retailer(carina_db_session: "Session", retailer_id: int) -> list[int]:
     return (
-        carina_db_session.execute(select(RewardConfig.id).where(RewardConfig.retailer_slug == retailer_slug))
+        carina_db_session.execute(select(RewardConfig.id).where(RewardConfig.retailer_id == retailer_id))
         .scalars()
         .all()
     )
 
 
-def get_reward_config(carina_db_session: "Session", retailer_slug: str) -> RewardConfig:
+def get_reward_config(carina_db_session: "Session", retailer_id: int) -> RewardConfig:
     return (
-        carina_db_session.execute(select(RewardConfig).where(RewardConfig.retailer_slug == retailer_slug))
-        .scalars()
-        .first()
+        carina_db_session.execute(select(RewardConfig).where(RewardConfig.retailer_id == retailer_id)).scalars().first()
     )
 
 
-def get_reward_config_with_available_rewards(carina_db_session: "Session", retailer_slug: str) -> RewardConfig:
+def get_reward_config_with_available_rewards(carina_db_session: "Session", retailer_id: int) -> RewardConfig:
     return (
         carina_db_session.execute(
             select(RewardConfig).where(
-                RewardConfig.retailer_slug == retailer_slug,
+                RewardConfig.retailer_id == retailer_id,
                 Reward.reward_config_id == RewardConfig.id,
                 Reward.allocated.is_(False),
             )
