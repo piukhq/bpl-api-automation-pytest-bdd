@@ -9,7 +9,7 @@ from pytest_bdd.parsers import parse
 from sqlalchemy import Date
 from sqlalchemy.future import select
 
-from db.carina.models import Reward, RewardConfig, RewardFileLog, RewardUpdate, Retailer
+from db.carina.models import Retailer, Reward, RewardConfig, RewardFileLog, RewardUpdate
 from db.polaris.models import AccountHolderReward
 from enums import FileAgentType
 
@@ -72,7 +72,7 @@ def reward_updates_upload(
     create_mock_rewards: Callable,
     request_context: dict,
     upload_reward_updates_to_blob_storage: Callable,
-    carina_db_session: "Session"
+    carina_db_session: "Session",
 ) -> None:
     """
     The fixture should place a CSV file onto blob storage, which a running instance of
@@ -104,7 +104,7 @@ def reward_updates_upload_blob_name(
     create_mock_rewards: Callable,
     request_context: dict,
     upload_reward_updates_to_blob_storage: Callable,
-    carina_db_session: "Session"
+    carina_db_session: "Session",
 ) -> None:
     """
     The fixture should place a CSV file onto blob storage, which a running instance of

@@ -29,9 +29,7 @@ def get_reward_configs_ids_by_retailer(carina_db_session: "Session", retailer_id
 
 def get_reward_config(carina_db_session: "Session", retailer_id: int) -> RewardConfig:
     return (
-        carina_db_session.execute(select(RewardConfig).where(RewardConfig.retailer_id == retailer_id))
-        .scalars()
-        .first()
+        carina_db_session.execute(select(RewardConfig).where(RewardConfig.retailer_id == retailer_id)).scalars().first()
     )
 
 
