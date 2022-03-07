@@ -8,8 +8,9 @@ from typing import TYPE_CHECKING
 from pytest_bdd import given, then, when
 from pytest_bdd.parsers import parse
 from retry_tasks_lib.enums import RetryTaskStatuses
+from sqlalchemy import select
 
-from db.carina.models import Reward, RewardConfig
+from db.carina.models import Reward, RewardConfig, Retailer
 from tests.reward_management_api.api_requests.reward_allocation import (
     send_post_malformed_reward_allocation,
     send_post_reward_allocation,
@@ -49,8 +50,12 @@ def check_rewards(carina_db_session: "Session", request_context: dict) -> None:
 
 @given(parse("there are at least {amount:d} reward configs for {retailer_slug}"))
 def check_reward_configs(carina_db_session: "Session", amount: int, retailer_slug: str, request_context: dict) -> None:
+
+    request_context["carina_retailer_id"] = carina_db_session.execute(
+        select(Retailer.id).where(Retailer.slug == retailer_slug)
+    ).scalar_one()
     reward_configs_ids = get_reward_configs_ids_by_retailer(
-        carina_db_session=carina_db_session, retailer_slug=retailer_slug
+        carina_db_session=carina_db_session, retailer_id=request_context["carina_retailer_id"]
     )
     count_reward_configs = len(reward_configs_ids)
     logging.info(
@@ -90,7 +95,8 @@ def check_reward_allocation_expiry_date(carina_db_session: "Session", request_co
     expiry_datetime: str = datetime.fromtimestamp(
         request_context["reward_allocation_task_params"]["expiry_date"], tz=timezone.utc
     ).strftime(date_time_format)
-    expected_expiry: str = (now + timedelta(days=request_context["reward_config"].validity_days)).strftime(
+    refund_window = request_context["required_fields_values"]
+    expected_expiry: str = (now + timedelta(days=int(refund_window[-1]))).strftime(
         date_time_format
     )
     assert expiry_datetime == expected_expiry
@@ -112,8 +118,11 @@ def check_reward_created(polaris_db_session: "Session", request_context: dict) -
 def send_post_reward_allocation_request(
     carina_db_session: "Session", retailer_slug: str, token: str, request_context: dict
 ) -> None:
+    request_context["carina_retailer_id"] = carina_db_session.execute(
+        select(Retailer.id).where(Retailer.slug == retailer_slug)
+    ).scalar_one()
     reward_config: RewardConfig = get_reward_config_with_available_rewards(
-        carina_db_session=carina_db_session, retailer_slug=retailer_slug
+        carina_db_session=carina_db_session, retailer_id=request_context["carina_retailer_id"]
     )
     payload = get_reward_allocation_payload(request_context)
     if token == "valid":
@@ -129,6 +138,7 @@ def send_post_reward_allocation_request(
 
     request_context["response"] = resp
     request_context["reward_config"] = reward_config
+    request_context["required_fields_values"] = reward_config.required_fields_values
 
 
 # fmt: off
@@ -138,7 +148,7 @@ def send_post_malformed_reward_allocation_request(
     carina_db_session: "Session", retailer_slug: str, request_context: dict
 ) -> None:
     payload = get_malformed_request_body()
-    reward_config: RewardConfig = get_reward_config(carina_db_session=carina_db_session, retailer_slug=retailer_slug)
+    reward_config: RewardConfig = get_reward_config(carina_db_session=carina_db_session, retailer_id=request_context["carina_retailer_id"])
     resp = send_post_malformed_reward_allocation(
         retailer_slug=retailer_slug, reward_slug=reward_config.reward_slug, request_body=payload
     )
