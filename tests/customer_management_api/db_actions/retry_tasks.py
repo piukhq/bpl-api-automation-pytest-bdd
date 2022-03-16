@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 def get_latest_callback_task_for_account_holder(
-    polaris_db_session: "Session", account_holder_uuid: Union[str, UUID]
+    polaris_db_session: "Session", account_holder_id: int
 ) -> RetryTask:
     for i in (1, 3, 5, 10):
         time.sleep(i)
@@ -22,7 +22,7 @@ def get_latest_callback_task_for_account_holder(
                     RetryTask.task_type_id == TaskType.task_type_id,
                     TaskType.name == "enrolment-callback",
                     TaskTypeKeyValue.task_type_key_id == TaskTypeKey.task_type_key_id,
-                    TaskTypeKeyValue.value == str(account_holder_uuid),
+                    TaskTypeKeyValue.value == str(account_holder_id),
                     RetryTask.retry_task_id == TaskTypeKeyValue.retry_task_id,
                 )
                 .order_by(RetryTask.created_at.desc())
