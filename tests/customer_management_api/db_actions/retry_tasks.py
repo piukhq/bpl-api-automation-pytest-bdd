@@ -1,7 +1,6 @@
 import time
 
-from typing import TYPE_CHECKING, Union
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from retry_tasks_lib.db.models import RetryTask, TaskType, TaskTypeKey, TaskTypeKeyValue
 from sqlalchemy.future import select
@@ -10,9 +9,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-def get_latest_callback_task_for_account_holder(
-    polaris_db_session: "Session", account_holder_id: int
-) -> RetryTask:
+def get_latest_callback_task_for_account_holder(polaris_db_session: "Session", account_holder_id: int) -> RetryTask:
     for i in (1, 3, 5, 10):
         time.sleep(i)
         callback_task = (
