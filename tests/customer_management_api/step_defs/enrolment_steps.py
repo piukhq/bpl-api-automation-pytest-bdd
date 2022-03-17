@@ -216,7 +216,7 @@ def check_account_holder_is_saved_in_db(polaris_db_session: "Session", request_c
 def check_account_holder_activation_is_saved_in_db(polaris_db_session: "Session", request_context: dict) -> None:
     account_holder = get_account_holder_from_request_data(polaris_db_session, request_context)
     assert account_holder is not None
-    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.account_holder_uuid)
+    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     assert callback_task is not None
     assert settings.MOCK_SERVICE_BASE_URL in callback_task.get_params()["callback_url"]
     assert callback_task.get_params()["third_party_identifier"] == "identifier"
@@ -226,11 +226,11 @@ def check_account_holder_activation_is_saved_in_db(polaris_db_session: "Session"
 def check_enrolment_callback_is_tried(polaris_db_session: "Session", request_context: dict) -> None:
     account_holder = get_account_holder_from_request_data(polaris_db_session, request_context)
     assert account_holder is not None
-    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.account_holder_uuid)
+    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     for i in range(1, 18):  # 3 minute wait
         logging.info(
             f"Sleeping for 10 seconds while waiting for callback attempt "
-            f"({callback_task.get_params()['account_holder_uuid']})..."
+            f"({callback_task.get_params()['account_holder.id']})..."
         )
         sleep(10)
         polaris_db_session.refresh(callback_task)
@@ -269,7 +269,7 @@ def assert_task_status_transition(
 def check_enrolment_callback_status(polaris_db_session: "Session", request_context: dict, status: str) -> None:
     account_holder = get_account_holder_from_request_data(polaris_db_session, request_context)
     assert account_holder is not None
-    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.account_holder_uuid)
+    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     assert_task_status_transition(polaris_db_session, callback_task, new_status=status.upper())
     request_context["callback_task"] = callback_task
 
