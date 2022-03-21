@@ -15,7 +15,7 @@ def _get_random_account_number(prefix: str) -> str:
 
 
 def _get_random_email() -> str:
-    return f"pytest{uuid4()}@bink.com"
+    return f"pytest+{uuid4()}@bink.com"
 
 
 def all_required_credentials(account_holder: "AccountHolder" = None) -> dict:

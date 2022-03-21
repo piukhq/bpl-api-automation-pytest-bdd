@@ -229,8 +229,7 @@ def check_enrolment_callback_is_tried(polaris_db_session: "Session", request_con
     callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     for i in range(1, 18):  # 3 minute wait
         logging.info(
-            f"Sleeping for 10 seconds while waiting for callback attempt "
-            f"({callback_task.get_params()['account_holder.id']})..."
+            f"Sleeping for 10 seconds while waiting for callback attempt {account_holder.id})..."
         )
         sleep(10)
         polaris_db_session.refresh(callback_task)
@@ -306,7 +305,7 @@ def alter_callback_url(
 ) -> None:
     account_holder = get_account_holder_from_request_data(polaris_db_session, request_context)
     assert account_holder is not None
-    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.account_holder_uuid)
+    callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     key_val = (
         polaris_db_session.execute(
             select(TaskTypeKeyValue)
