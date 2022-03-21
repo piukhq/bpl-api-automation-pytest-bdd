@@ -228,9 +228,7 @@ def check_enrolment_callback_is_tried(polaris_db_session: "Session", request_con
     assert account_holder is not None
     callback_task = get_latest_callback_task_for_account_holder(polaris_db_session, account_holder.id)
     for i in range(1, 18):  # 3 minute wait
-        logging.info(
-            f"Sleeping for 10 seconds while waiting for callback attempt {account_holder.id})..."
-        )
+        logging.info(f"Sleeping for 10 seconds while waiting for callback attempt {account_holder.id})...")
         sleep(10)
         polaris_db_session.refresh(callback_task)
         if callback_task.attempts > 0:
