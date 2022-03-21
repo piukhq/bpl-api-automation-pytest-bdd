@@ -22,7 +22,7 @@ def _get_credentials() -> dict:
         address_2 = fake.street_name()
 
     return {
-        "email": f"pytest{uuid4()}@bink.com",
+        "email": f"pytest+{uuid4()}@bink.com",
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
         "date_of_birth": fake.date_of_birth().strftime("%Y-%m-%d"),
@@ -105,7 +105,7 @@ def missing_credentials_request_body() -> dict:
 
 def bad_field_validation_request_body() -> dict:
     credentials = _get_credentials()
-    credentials["email"] = f"pytest{uuid4()}bink.com"
+    credentials["email"] = f"pytest+{uuid4()}bink.com"
     credentials["date_of_birth"] = "31/12/1990"
     credentials["phone"] = "999"
     credentials["address_line2"] = "road*road"
