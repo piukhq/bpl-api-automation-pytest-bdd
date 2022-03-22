@@ -96,7 +96,9 @@ def check_reward_allocation_expiry_date(carina_db_session: "Session", request_co
     expiry_datetime: str = datetime.fromtimestamp(
         request_context["reward_allocation_task_params"]["expiry_date"], tz=timezone.utc
     ).strftime(date_time_format)
-    refund_window = int(re.search(r"\d+", request_context["required_fields_values"]).group())
+
+    regex_obj = re.search(r"\d+", request_context["required_fields_values"])
+    refund_window = regex_obj.group() if regex_obj else ""
 
     expected_expiry: str = (now + timedelta(days=int(refund_window))).strftime(date_time_format)
     assert expiry_datetime == expected_expiry
