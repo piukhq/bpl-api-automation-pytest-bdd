@@ -37,6 +37,7 @@ def post_reward(past_or_future: str, retailer_slug: str, token_validity: str, re
         "reward_slug": "reward-slug",
         "issued_date": datetime.utcnow().timestamp(),
         "expiry_date": (datetime.utcnow() + timedelta(days=-7 if past_or_future == "past" else 7)).timestamp(),
+        "associated_url": "",
     }
     resp = send_post_accounts_reward(
         retailer_slug,
