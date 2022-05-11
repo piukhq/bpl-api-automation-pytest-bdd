@@ -44,6 +44,7 @@ def send_transaction_request(payload_type: str, retailer_slug: str, token: str, 
             "datetime": int(datetime.utcnow().timestamp()),
             "MID": "12432432",
             "loyalty_id": str(account_holder_uuid),
+            "transaction_id": "BPL1234577891",
         }
 
     if payload_type == "over the threshold":
