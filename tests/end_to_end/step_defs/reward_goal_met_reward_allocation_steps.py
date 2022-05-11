@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 import uuid
 
@@ -135,6 +136,7 @@ def send_transaction_request(request_context: dict) -> None:
         "MID": "12432432",
         "loyalty_id": str(request_context["account_holder_uuid"]),
         "transaction_total": request_context["awardable_transaction_value"],
+        "transaction_id": "BPL" + str(random.randint(1, (10**10))),
     }
     post_transaction_request(payload, request_context["retailer_slug"], "correct", request_context)
 
