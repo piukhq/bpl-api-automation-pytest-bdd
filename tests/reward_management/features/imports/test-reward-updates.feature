@@ -14,5 +14,5 @@ Feature: Reward code status updates from 3rd party
   Scenario: Check reward files stored on blob storage have unique file names
 
     Given The reward code provider provides a bulk update file named test_import.csv for test-retailer
-    And a update reward file log record exists for the file name test-retailer/reward-updates/test_import.csv
+    And a update reward file log record exists for the file name test-retailer/reward-updates-test_import.csv
     Then the file is moved to the errors container by the reward importer

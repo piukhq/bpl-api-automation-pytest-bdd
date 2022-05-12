@@ -29,7 +29,8 @@ def upload_report_to_blob_storage(filename: str, blob_prefix: str = "bpl") -> Bl
 
 
 def put_new_reward_updates_file(retailer_slug: str, rewards: List[Reward], blob_name: str) -> BlobClient:
-    blob_path = os.path.join(retailer_slug, "reward-updates", blob_name)
+    blob_name = "reward-updates-" + blob_name
+    blob_path = os.path.join(retailer_slug, blob_name)
     today_date = datetime.now().strftime("%Y-%m-%d")
     content = "\n".join([f"{reward.code},{today_date},redeemed" for reward in rewards])
     return upload_blob(blob_path, content)
@@ -38,11 +39,9 @@ def put_new_reward_updates_file(retailer_slug: str, rewards: List[Reward], blob_
 def put_new_available_rewards_file(
     retailer_slug: str, codes: List[str], reward_slug: Optional[str] = None
 ) -> BlobClient:
-    blob_name = f"test_import_{uuid.uuid4()}.csv"
-    path_elems = [retailer_slug, "available-rewards", blob_name]
-    if reward_slug:
-        path_elems.insert(2, reward_slug)
-    blob_path = os.path.join(*path_elems)
+    filename = "-imports-".join([reward_slug or "", f"test_{uuid.uuid4()}.csv"])
+    blob_name = "-".join(["available-rewards", filename])
+    blob_path = os.path.join(retailer_slug, blob_name)
     content = "\n".join([code for code in codes])
     logging.info(f"content of csv file upload: {content}")
     return upload_blob(blob_path, content)
